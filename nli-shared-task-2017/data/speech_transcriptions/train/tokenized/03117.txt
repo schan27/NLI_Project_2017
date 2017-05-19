@@ -1,0 +1,5 @@
+I had gone gone for summer internship in an in a college namely Indian Institute of Science .
+That time I passed my problem I 'm given uh given to solve the problem .
+I had to design a controller for a shaker machine which will also look better input that is being fed to the shaker machine .
+We need to design a controller so that the input obvious follows the output .
+The output follows the input , so we need uh I had to accomplish these task for a very short time .

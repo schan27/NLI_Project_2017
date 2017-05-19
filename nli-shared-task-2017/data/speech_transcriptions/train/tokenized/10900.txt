@@ -1,0 +1,7 @@
+The book I read is is called as Thinking in C plus plus , by by good author .
+It it is he explain the explain the concepts of the language C plus plus uh using the real time examples .
+By real time examples .
+Like for example , he explain the objects , class of objects by defining an object by using a real time thing like a bench .
+A bench a set of a bench is made up of wood , wood or metal like that .
+So he explain that objects is nothing but it has some set of features in it .
+Uh that 's all .

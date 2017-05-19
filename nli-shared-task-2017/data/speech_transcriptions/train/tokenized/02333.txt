@@ -1,0 +1,4 @@
+My last company was a security company and uh it would do enterprise single sign on that it would allow uh the user to log on into different applications once he is logged into a wallet .
+Like I was given the opportunity to go ahead and design the complete automation framework which was used to actually do all the sign ons to different applications .
+It was a big opportunity because it meant that I was creating something that was like in competing with the best in the world out there .
+Uh it was a big responsibility and it let me uh and go ahead and create a system which would allow me to do that , and I was given a big team to handle that .
