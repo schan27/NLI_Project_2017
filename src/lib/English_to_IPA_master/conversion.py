@@ -112,16 +112,16 @@ def isin_cmu(word):
 
 
 def convert(user_in, retrieve='TOP'):
-    """takes either a string or list of English words and converts them to IPA"""
+    """ NOTE this is modified from base library implementation"""
+    # this function returns the cmu dictionary phoneme translation of the input text
     if type(user_in) == str:
-        user_in = user_in.lower().split(" ")
+        user_in = user_in.lower().replace(".","").replace(",","")\
+            .replace("?","").replace("!","").replace("'","").replace("\n","").split(" ")
     cmu_list = get_cmu(user_in)
-    ipa_words = cmu_to_ipa(cmu_list)  # converts the CMU phonetic pronunciations to IPA notation
-    if retrieve.lower() == 'all':
-        ipa_final = get_all(ipa_words)  # also an option
-    else:
-        ipa_final = get_top(ipa_words)  # gets top by default
-    return ipa_final
+    cmu_out = ""
+    for cmu_word in cmu_list:
+        cmu_out += cmu_word[0] + " "
+    return cmu_out + "\n"
 
 def main():
     """loops through user inputs and returns IPA notations until __quit__ is typed"""
