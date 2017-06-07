@@ -7,6 +7,7 @@ import re
 
 # add NLI_Project_2017 directory to system path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# print(os.path.dirname(os.path.dirname(__file__)))
 
 # user imports
 from src.util.Argument import Argument, ArgumentType
@@ -23,7 +24,7 @@ def parse_argv():
     if len(argv) <= 1:
         print_usage()
 
-    arg_list = []
+    arg_list = [] # type is argument class
 
     try:
         for i in range(0, len(argv)):
@@ -47,7 +48,7 @@ def parse_argv():
 
 
 
-# /////////////// main /////////////////////
+# /////////////// main //////////// sr/////////
 def main():
     args = parse_argv()
 

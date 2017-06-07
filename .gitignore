@@ -3,3 +3,5 @@
 .DS_Store
 __pycache__
 *.pyc
+*stanford-parser-3.7.0-models.jar
+*_pos.pkl
