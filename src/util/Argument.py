@@ -2,9 +2,12 @@ from copy import copy
 
 
 class ArgumentType:
-    INVALID_ARGUMENT    = 0
-    EXTRACT_PHONEME     = 1
-    RAW_STRING          = 2
+    UNKNOWN             = 0
+    INVALID_ARGUMENT    = 1
+    EXTRACT             = 2
+    RAW_STRING          = 3
+
+    PHONEME             = 4
 
 
 class Argument:
@@ -27,6 +30,9 @@ class Argument:
 
     def get_sub_args(self):
         return copy(self.sub_args)
+
+    def append_sub_args(self, newObj):
+        self.sub_args.append(newObj)
 
     def iter_sub_args(self):
         for x in self.sub_args:

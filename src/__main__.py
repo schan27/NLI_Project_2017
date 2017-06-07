@@ -13,10 +13,11 @@ from src.util.Argument import Argument, ArgumentType
 from src.feature_extraction.Phoneme_extraction import extract_phonemes
 
 def print_usage():
-    print("python src [-e extract ] [options]\n")
-    print("[-e extract ]")
-    print("\textract_phoneme,<path to file or dir>")
-    print("\t\t example: python src -e \"extract_phoneme,/tmp/data.txt\"")
+    print("python src [ -e  [-p]] ")
+    print("------------------------")
+    print("-e [options] <filePath> <filePath2> ..... <filePathX>")
+    print("[options]")
+    print("\t-p extract phonemes from target file(s)")
 
 
 def parse_argv():
@@ -24,19 +25,26 @@ def parse_argv():
         print_usage()
 
     arg_list = []
-
+    arg_ptr = Argument("",ArgumentType.UNKNOWN)
     try:
         for i in range(0, len(argv)):
 
-            # extraction section
+            # -e extraction
             if argv[i] == "-e":
+                arg_ptr = Argument(argv[i],ArgumentType.EXTRACT)
+                arg_list.append(arg_ptr)
 
-                ext_arg = re.match(r"([\w\d]+),([\w\d\\/_\-.]+)", argv[i + 1])
-                # phoneme extraction
-                if ext_arg.group(1) == "extract_phoneme":
-                    arg_list.append(Argument(ext_arg.group(1),ArgumentType.EXTRACT_PHONEME,
-                                             Argument(ext_arg.group(2),ArgumentType.RAW_STRING)))
-                    i += 1 # we consumed two arguments (-e and extract_phoneme,<path>)
+            # -e options
+            elif argv[i] == "-p" and arg_ptr.get_type() == ArgumentType.EXTRACT:
+                arg_ptr.append_sub_args(Argument(argv[i],ArgumentType.PHONEME))
+
+
+            else:
+                # not a normal tag. check for command input.
+                if arg_ptr.get_type() == ArgumentType.EXTRACT:
+                    # we have seen extract command! and there is some input
+                    # so it must be file path (I hope).
+                    arg_ptr.append_sub_args(Argument(argv[i],ArgumentType.RAW_STRING))
 
 
     except IndexError:
@@ -53,14 +61,26 @@ def main():
 
     for arg in args:
         # execute action based on arg type
-
         # feature extraction section
-        if arg.get_type() == ArgumentType.EXTRACT_PHONEME:
-            arr_file_path = arg.get_sub_args()
-            if len(arr_file_path) > 0:
-                extract_phonemes(arr_file_path[0].get_string())
-            else:
-                print("ERROR: Unknown argument error.")
+        if arg.get_type() == ArgumentType.EXTRACT:
+            options = filter(lambda x: x.get_type() == ArgumentType.PHONEME, arg.get_sub_args())
+            targets = filter(lambda x: x.get_type() == ArgumentType.RAW_STRING, arg.get_sub_args())
+
+            # error checks
+            # do we have at least one option
+            if len(list(options)) < 1:
+                print_usage()
+                break
+            # do we have at least one target
+            if len(list(targets)) < 1:
+                print_usage()
+                break
+
+            # process operation
+            for opt in options:
+                if opt.get_type() == ArgumentType.PHONEME:
+                    for target in targets:
+                        extract_phonemes(target.get_string())
 
 
     print("done!")
