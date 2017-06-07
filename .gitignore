@@ -1,3 +1,4 @@
+*.corrected
 *.phoneme
 .idea
 .DS_Store
