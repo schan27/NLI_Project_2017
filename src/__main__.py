@@ -7,10 +7,12 @@ import re
 
 # add NLI_Project_2017 directory to system path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# print(os.path.dirname(os.path.dirname(__file__)))
 
 # user imports
 from src.util.Argument import Argument, ArgumentType
 from src.feature_extraction.Phoneme_extraction import extract_phonemes
+from src.feature_extraction.Spelling_correction import correct_spelling
 
 def print_usage():
     print("python src [ -e  [-p]] ")
@@ -26,6 +28,7 @@ def parse_argv():
 
     arg_list = []
     arg_ptr = Argument("",ArgumentType.UNKNOWN)
+
     try:
         for i in range(0, len(argv)):
 
@@ -38,14 +41,12 @@ def parse_argv():
             elif argv[i] == "-p" and arg_ptr.get_type() == ArgumentType.EXTRACT:
                 arg_ptr.append_sub_args(Argument(argv[i],ArgumentType.PHONEME))
 
-
             else:
                 # not a normal tag. check for command input.
                 if arg_ptr.get_type() == ArgumentType.EXTRACT:
                     # we have seen extract command! and there is some input
                     # so it must be file path (I hope).
                     arg_ptr.append_sub_args(Argument(argv[i],ArgumentType.RAW_STRING))
-
 
     except IndexError:
         print_usage()
@@ -55,7 +56,7 @@ def parse_argv():
 
 
 
-# /////////////// main /////////////////////
+# /////////////// main //////////// sr/////////
 def main():
     args = parse_argv()
 
@@ -81,7 +82,6 @@ def main():
                 if opt.get_type() == ArgumentType.PHONEME:
                     for target in targets:
                         extract_phonemes(target.get_string())
-
 
     print("done!")
 

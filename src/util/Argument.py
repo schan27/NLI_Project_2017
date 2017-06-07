@@ -8,6 +8,7 @@ class ArgumentType:
     RAW_STRING          = 3
 
     PHONEME             = 4
+    CORRECT_SPELLING    = 5
 
 
 class Argument:
