@@ -5,6 +5,7 @@ class ArgumentType:
     INVALID_ARGUMENT    = 0
     EXTRACT_PHONEME     = 1
     RAW_STRING          = 2
+    CORRECT_SPELLING    = 3
 
 
 class Argument:

@@ -12,13 +12,14 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 # user imports
 from src.util.Argument import Argument, ArgumentType
 from src.feature_extraction.Phoneme_extraction import extract_phonemes
+from src.feature_extraction.Spelling_correction import correct_spelling
 
 def print_usage():
     print("python src [-e extract ] [options]\n")
     print("[-e extract ]")
     print("\textract_phoneme,<path to file or dir>")
     print("\t\t example: python src -e \"extract_phoneme,/tmp/data.txt\"")
-
+    
 
 def parse_argv():
     if len(argv) <= 1:
@@ -38,7 +39,12 @@ def parse_argv():
                     arg_list.append(Argument(ext_arg.group(1),ArgumentType.EXTRACT_PHONEME,
                                              Argument(ext_arg.group(2),ArgumentType.RAW_STRING)))
                     i += 1 # we consumed two arguments (-e and extract_phoneme,<path>)
-
+                
+                elif ext_arg.group(1) == "correct_spelling":
+                    arg_list.append(Argument(ext_arg.group(1), ArgumentType.CORRECT_SPELLING,
+                                    Argument(ext_arg.group(2), ArgumentType.RAW_STRING)))
+                    i += 1
+                    
 
     except IndexError:
         print_usage()
@@ -62,7 +68,14 @@ def main():
                 extract_phonemes(arr_file_path[0].get_string())
             else:
                 print("ERROR: Unknown argument error.")
-
+                
+        elif arg.get_type() == ArgumentType.CORRECT_SPELLING:
+            arr_file_path = arg.get_sub_args()
+            if len(arr_file_path) > 0:
+                correct_spelling(arr_file_path[0].get_string())
+            else:
+                print("ERROR: Unknown argument error.")
+            
 
     print("done!")
 
