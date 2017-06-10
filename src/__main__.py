@@ -20,6 +20,7 @@ def print_usage():
     print("-e [options] <filePath> <filePath2> ..... <filePathX>")
     print("[options]")
     print("\t-p extract phonemes from target file(s)")
+    print("\t-c correct spelling in target file(s)")
 
 
 def parse_argv():
@@ -39,6 +40,9 @@ def parse_argv():
             # -e options
             elif arg == "-p" and arg_ptr.get_type() == ArgumentType.EXTRACT:
                 arg_ptr.append_sub_args(Argument(arg,ArgumentType.PHONEME))
+                
+            elif arg == '-c' and arg_ptr.get_type() == ArgumentType.EXTRACT:
+                arg_ptr.append_sub_args(Argument(arg, ArgumentType.CORRECT_SPELLING))
 
             else:
                 # not a normal tag. check for command input.
@@ -64,7 +68,9 @@ def main():
         # execute action based on arg type
         # feature extraction section
         if arg.get_type() == ArgumentType.EXTRACT:
-            options = list(filter(lambda x: x.get_type() == ArgumentType.PHONEME, arg.get_sub_args()))
+            feature_extraction = {ArgumentType.PHONEME, ArgumentType.CORRECT_SPELLING}
+            
+            options = list(filter(lambda x: x.get_type() in feature_extraction, arg.get_sub_args()))
             targets = list(filter(lambda x: x.get_type() == ArgumentType.RAW_STRING, arg.get_sub_args()))
 
 
@@ -83,6 +89,10 @@ def main():
                 if opt.get_type() == ArgumentType.PHONEME:
                     for target in targets:
                         extract_phonemes(target.get_string())
+                        
+                elif opt.get_type() == ArgumentType.CORRECT_SPELLING:
+                    for target in targets:
+                        correct_spelling(target.get_string())
 
     print("done!")
 
