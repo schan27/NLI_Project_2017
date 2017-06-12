@@ -133,19 +133,19 @@ def main():
             training_files = arg.find_last_subarg_of_types([ArgumentType.T1_CLASSIFY])
             testing_files = arg.find_last_subarg_of_types([ArgumentType.T2_CLASSIFY])
 
+            if training_files is None or testing_files is None:
+                print("ERROR: you must specify both of -t1 and -t2")
+                print_usage()
+                sys.exit(-1)
+
             # expand paths (because PyCharm does not)
             training_files = expand_paths(training_files)
             testing_files = expand_paths(testing_files)
 
             # load classifier framework
             cfw = ClassifierFrameWork()
-            cfw.load_label_file("../nli-shared-task-2017/data/labels/dev/labels.dev.csv")
-            cfw.load_label_file("../nli-shared-task-2017/data/labels/train/labels.train.csv")
-
-            if training_files is None or testing_files is None:
-                print("ERROR: you must specify both of -t1 and -t2")
-                print_usage()
-                sys.exit(-1)
+            cfw.load_label_file("nli-shared-task-2017/data/labels/dev/labels.dev.csv")
+            cfw.load_label_file("nli-shared-task-2017/data/labels/train/labels.train.csv")
 
             # load feature files
             for train_file in training_files:

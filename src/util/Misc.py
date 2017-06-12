@@ -9,6 +9,8 @@ def expand_paths(arg_list):
             glist = glob.glob(train_file.get_string())
             for path in glist:
                 expanded_files.append(Argument(path, ArgumentType.RAW_STRING))
+        else:
+            expanded_files.append(train_file)
     return expanded_files
 
 # return integer of maximum frequency
