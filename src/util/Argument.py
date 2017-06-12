@@ -4,11 +4,21 @@ from copy import copy
 class ArgumentType:
     UNKNOWN             = 0
     INVALID_ARGUMENT    = 1
-    EXTRACT             = 2
-    RAW_STRING          = 3
+    RAW_STRING          = 2
+    CLASSIFY            = 3
+    EXTRACT             = 4
 
-    PHONEME             = 4
-    CORRECT_SPELLING    = 5
+    # -e options
+    PHONEME             = 11
+    CORRECT_SPELLING    = 12
+
+    # -c classifiers
+    T1_CLASSIFY         = 21
+    T2_CLASSIFY         = 22
+    LDA_CLASSIFY        = 23
+
+
+
 
 
 class Argument:
@@ -40,6 +50,13 @@ class Argument:
     def iter_sub_args(self):
         for x in self.sub_args:
             yield x
+
+    # types = [type,type,type.....]
+    def find_last_subarg_of_types(self, types):
+        for arg in self.sub_args[::-1]:
+            if arg.get_type() in types:
+                return arg
+        return None
 
     def __iter__(self):
         for s_arg in self.sub_args:
