@@ -1,9 +1,6 @@
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.model_selection import GridSearchCV
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, SelectFromModel
-from sklearn.linear_model import RandomizedLogisticRegression
+from sklearn.feature_selection import VarianceThreshold, SelectKBest, SelectFromModel, mutual_info_classif
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
@@ -15,13 +12,12 @@ from src.util.Misc import max_frequency, split_on_sentence
 class LDA(ClassifierBase):
     def __init__(self):
         super(LDA,self).__init__()
-        self.pipe = Pipeline([('cv',CountVectorizer()),
+        self.pipe = Pipeline([('cv',CountVectorizer(ngram_range=(1,4),binary=False)),
                               ('svc', SelectFromModel(LinearSVC(C=0.47))),
-                              ('sel',SelectKBest(k=900)),
+                              ('sel',SelectKBest(k=8000)),
                               ('var', VarianceThreshold()),
                               ('dens',DenseTransformer()),
-                              #("reG", RandomizedLogisticRegression()),
-                              ('lda',LinearDiscriminantAnalysis())])
+                              ('lda',LinearDiscriminantAnalysis(solver="lsqr",shrinkage="auto"))])
 
     def preprocess(self,data):
         return data
@@ -36,13 +32,9 @@ class LDA(ClassifierBase):
                 label_list.append(LanguageGroup.LABEL_MAP[data[0][2]])
             data_list.extend(sentences)
 
-        # DBG LIMIT DATA INPUT
-        data_list = data_list[:3000]
-        label_list = label_list[:3000]
-
-
-        #grid_search = GridSearchCV(self.pipe,{"svc__estimator__C":(0.5,0.47)},n_jobs=2)
+        #grid_search = GridSearchCV(self.pipe,{},n_jobs=2)
         #self.pipe = grid_search.fit(data_list,label_list)
+        #print(str(grid_search.best_params_))
         self.pipe.fit(data_list,label_list)
 
     def classify(self,testing_data):
