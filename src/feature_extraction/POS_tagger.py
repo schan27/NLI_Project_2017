@@ -58,7 +58,7 @@ def __tag_pos(target, is_sent):
         dir_path = path.dirname(target)
         base_name = path.basename(target)
 
-        new_dir = dir_path+'/POS/'
+        new_dir = dir_path+'/POS/'  
         if not path.exists(new_dir):
             mkdir(new_dir)
 
@@ -76,4 +76,4 @@ def __tag_pos(target, is_sent):
             file_out.close()
     return True
 
-tag_pos('../../nli-shared-task-2017/data/essays/train/tokenized')
+tag_pos('../../nli-shared-task-2017/data/essays/train/tokenized/00001.txt')
