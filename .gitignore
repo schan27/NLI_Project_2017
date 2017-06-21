@@ -6,3 +6,6 @@ __pycache__
 *.pyc
 *stanford-parser-3.7.0-models.jar
 *_pos.pkl
+env
+GoogleNews-vectors-negative300.bin
+embding_matrix.pkl

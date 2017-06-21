@@ -1,4 +1,7 @@
 from nltk.tag import StanfordPOSTagger
+from nltk.tag.perceptron import PerceptronTagger
+import nltk.data, nltk.tag
+
 from nltk.parse import stanford
 from os import path, listdir, mkdir
 import os
@@ -14,6 +17,15 @@ import pickle
 
 #if you whant to run dependency tree locally,
 # please download  stanford-parser-3.7.0-models.jar
+
+jar = '../lib/Stanford_POS/stanford-postagger.jar'
+model = '../lib/Stanford_POS/english-bidirectional-distsim.tagger'
+os.environ['STANFORD_PARSER'] = '../lib/Stanford_POS/stanford-parser.jar'
+os.environ['STANFORD_MODELS'] = '../lib/Stanford_POS/stanford-parser-3.7.0-models.jar'
+# st = StanfordPOSTagger(model, jar, encoding='utf8')
+dep = stanford.StanfordParser(model_path='../lib/Stanford_POS/englishPCFG.ser.gz')
+st = PerceptronTagger()
+
 
 
 def tag_pos(target, is_sent = False):
@@ -34,13 +46,6 @@ def tag_pos(target, is_sent = False):
 def __tag_pos(target, is_sent):
     file_in = None
     file_out = None
-    jar = '../lib/Stanford_POS/stanford-postagger.jar'
-    model = '../lib/Stanford_POS/english-bidirectional-distsim.tagger'
-    os.environ['STANFORD_PARSER'] = '../lib/Stanford_POS/stanford-parser.jar'
-    os.environ['STANFORD_MODELS'] = '../lib/Stanford_POS/stanford-parser-3.7.0-models.jar'
-
-    st = StanfordPOSTagger(model, jar, encoding='utf8')
-    dep = stanford.StanfordParser(model_path='../lib/Stanford_POS/englishPCFG.ser.gz')
 
     try:
         file_in = open(target, 'r')
@@ -56,7 +61,7 @@ def __tag_pos(target, is_sent):
 
         # file_path = path.splitext(target)
         dir_path = path.dirname(target)
-        base_name = path.basename(target)
+        base_name = path.splitext(path.basename(target))[0]
 
         new_dir = dir_path+'/POS/'  
         if not path.exists(new_dir):
@@ -76,4 +81,4 @@ def __tag_pos(target, is_sent):
             file_out.close()
     return True
 
-tag_pos('../../nli-shared-task-2017/data/essays/train/tokenized/00001.txt')
+tag_pos('../../nli-shared-task-2017/data/essays/dev/tokenized')
