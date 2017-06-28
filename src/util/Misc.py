@@ -33,3 +33,4 @@ def max_frequency(int_list):
 
 def split_on_sentence(str_text):
     return list(map(lambda x: x.replace("\n",""), filter(lambda x: True if len(x) > 1 else False, re.findall(r"[^.!?]+[.!?$]*",str_text))))
+

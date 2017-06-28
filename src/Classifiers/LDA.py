@@ -14,7 +14,7 @@ class LDA(ClassifierBase):
         super(LDA,self).__init__()
         self.pipe = Pipeline([('cv',CountVectorizer(ngram_range=(1,4),binary=False)),
                               ('svc', SelectFromModel(LinearSVC(C=0.47))),
-                              ('sel',SelectKBest(k=8000)),
+                              ('sel',SelectKBest(k=6000)),
                               ('var', VarianceThreshold()),
                               ('dens',DenseTransformer()),
                               ('lda',LinearDiscriminantAnalysis(solver="lsqr",shrinkage="auto"))])

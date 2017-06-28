@@ -16,6 +16,7 @@ class ArgumentType:
     T1_CLASSIFY         = 21
     T2_CLASSIFY         = 22
     LDA_CLASSIFY        = 23
+    DNN_CLASSIFY        = 24
 
 
 
