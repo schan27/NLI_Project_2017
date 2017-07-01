@@ -1,6 +1,7 @@
 import os
 import re
 import pandas
+from sklearn.metrics import f1_score
 
 class ClassifierFrameWork:
     def __init__(self):
@@ -91,10 +92,16 @@ class ClassifierFrameWork:
     def check_results(self):
         correct = 0
         total = 0
+        true_list = []
+        pred_list = []
         for result in self.results:
                 total += 1
                 if result[0][2] == result[1]:
                     correct +=1
+                true_list.append(result[0][2])
+                pred_list.append(result[1])
+
+        print("F1 Score: ",f1_score(true_list, pred_list,average='weighted'))
         print("Overall Classification Accuracy is: " + str(float(correct)/float(total)))
 
     def add_classifier(self, new_classifier):
