@@ -19,6 +19,7 @@ from src.feature_extraction.Spelling_correction import correct_spelling
 from src.Classifiers.ClassifierFrameWork import ClassifierFrameWork
 from src.Classifiers.LDA import LDA
 from src.Classifiers.DNNClassifier import DNNC
+from src.Classifiers.BNNClassifier import BNN
 
 def print_usage():
     print("python src [-c <[classifiers] -t1 <training files> -t2 <test files> ] [ -e  [options]]  ")
@@ -31,6 +32,7 @@ def print_usage():
     print("[classifier]")
     print("\t-lda use Linear Discriminant Analysis")
     print("\t-dnn use Deep Neural Network")
+    print("\t-bnn use Ben Neural Network")
 
 
 
@@ -72,6 +74,9 @@ def parse_argv():
 
             elif arg == "-dnn" and arg_ptr.get_type() == ArgumentType.CLASSIFY:
                 arg_ptr.append_sub_args(Argument(arg,ArgumentType.DNN_CLASSIFY))
+
+            elif arg == "-bnn" and arg_ptr.get_type() == ArgumentType.CLASSIFY:
+                arg_ptr.append_sub_args(Argument(arg,ArgumentType.BNN_CLASSIFY))
 
             else:
                 # not a normal tag. check for command input.
@@ -160,12 +165,14 @@ def main():
                 if test_file.get_type() == ArgumentType.RAW_STRING:
                     cfw.load_data_from_file(test_file.get_string(),True)
 
+            # run classifiers on given data
             for sarg in arg:
                 if sarg.get_type() == ArgumentType.LDA_CLASSIFY:
-                    # do lda classification on training / test set
                     cfw.add_classifier(LDA())
                 elif sarg.get_type() == ArgumentType.DNN_CLASSIFY:
                     cfw.add_classifier(DNNC())
+                elif sarg.get_type() == ArgumentType.BNN_CLASSIFY:
+                    cfw.add_classifier(BNN())
 
             # do classification task
             cfw.preprocess_data()
