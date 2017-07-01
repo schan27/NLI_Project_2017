@@ -2,26 +2,27 @@ from .ClassifierBase import ClassifierBase, LanguageGroup
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_selection import SelectKBest, SelectFromModel
-from src.util.Misc import max_index
+from src.util.Misc import max_index, select_feature
 import numpy as np
 import tensorflow as tf
 
-FEATURE_COUNT = 'all'
+FEATURE_COUNT = "all"
+FEATURE = "lemmas"
 N_CLASSES = 11
 
 
 class BNN:
     def __init__(self):
         super(BNN,self).__init__()
-        self.network_list = [_BNN(binary=True,analyzer="char_wb",feature_count='all'), _BNN(binary=True),_BNN(binary=False),_BNN(binary=True, analyzer='char'),
-                             _BNN(binary=False, analyzer='char')]
-    #word uni 76.45
-    #word bi  80.27
-    #word tri 67.90
+        self.network_list = [_BNN(ngram_range=(1,1),lower=False,binary=False)]#_BNN(binary=True,analyzer="char_wb",feature_count='all'), _BNN(binary=True),_BNN(binary=False),_BNN(binary=True, analyzer='char'),
+                             #_BNN(binary=False, analyzer='char')]
     def preprocess(self,data):
         return data
 
     def train(self,training_data):
+        if len(training_data) == 1:
+            training_data = select_feature(training_data[0][1],training_data[0][0],feature_name=FEATURE)
+
         i = 0
         for network in self.network_list:
             print("Training Network: ", i+1, " of: ", len(self.network_list))
@@ -29,6 +30,9 @@ class BNN:
             i += 1
 
     def classify(self,testing_data):
+        if len(testing_data) == 1:
+            testing_data = select_feature(testing_data[0][1],testing_data[0][0],feature_name=FEATURE)
+
         label_list = []
         for test in testing_data:
             label_list.append(test[0])
@@ -44,6 +48,10 @@ class BNN:
                 for k in range(0, N_CLASSES):
                     output_merge[k] *= network_results[z][i][k]
             output.append((label_list[i], LanguageGroup.LABEL_MAP_STR[max_index(output_merge)+1]))
+
+        for out in output:
+            print(out[0],out[1])
+
         return output
 
 
@@ -69,7 +77,7 @@ class _BNN (ClassifierBase):
         data_list = []
         label_list = []
         for data in training_data:
-            label_list.append(LanguageGroup.LABEL_MAP[data[0][2]]-1)
+            label_list.append(LanguageGroup.LABEL_MAP[data[0][2]]- 1)
             data_list.append(data[1])
 
         # extract features
@@ -83,7 +91,7 @@ class _BNN (ClassifierBase):
         self.estimator.compile(loss="categorical_crossentropy",optimizer="Adam", metrics=['accuracy'])
 
         self.estimator.fit(feature_counts,to_categorical(label_list,num_classes=11),
-                           batch_size=128,epochs=100,callbacks=[EarlyStopping(monitor="loss",min_delta=0.005)])
+                           batch_size=128,epochs=100,callbacks=[EarlyStopping(monitor="loss",min_delta=0.001)])
 
     def classify(self, testing_data):
         output = []

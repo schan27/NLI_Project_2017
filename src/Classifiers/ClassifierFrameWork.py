@@ -1,5 +1,6 @@
 import os
 import re
+import pandas
 
 class ClassifierFrameWork:
     def __init__(self):
@@ -10,30 +11,37 @@ class ClassifierFrameWork:
         self.label_map = None # map of all labels {file_name:(speech_prompt,essay_prompt,L1)}
 
     def load_data_from_file(self, path, bTest=False):
-        if self.label_map is None:
-            print("ERROR: cannot load data from file, without first loading labels!")
+        if len(self.label_map) == 0:
+            print("ERROR: you must load labels before loading any data files")
             return
 
-        file = None
-        data_buffer = ""
-        try:
-            file = open(path,"r")
-            data_buffer = file.read()
-        except IOError as e:
-            print("ERROR: " + str(e))
-            return
-        finally:
-            if file is not None:
-                file.close()
-
-        data_label = self.label_map[re.match(r"^[0-9]+",os.path.basename(path)).group(0)]
-        if data_label is not None:
+        if os.path.splitext(path)[1] == ".csv":
+            csv_data = pandas.read_csv(path)
             if bTest:
-                self.test_data.append((data_label,data_buffer))
+                self.test_data.append((self.label_map,csv_data))
             else:
-                self.train_data.append((data_label,data_buffer))
+                self.train_data.append((self.label_map,csv_data))
         else:
-            print("ERROR: could not find label for: " + path)
+            file = None
+            data_buffer = ""
+            try:
+                file = open(path,"r")
+                data_buffer = file.read()
+            except IOError as e:
+                print("ERROR: " + str(e))
+                return
+            finally:
+                if file is not None:
+                    file.close()
+
+            data_label = self.label_map[re.match(r"^[0-9]+",os.path.basename(path)).group(0)]
+            if data_label is not None:
+                if bTest:
+                    self.test_data.append((data_label,data_buffer))
+                else:
+                    self.train_data.append((data_label,data_buffer))
+            else:
+                print("ERROR: could not find label for: " + path)
 
     # load data labels from file
     def load_label_file(self,path):

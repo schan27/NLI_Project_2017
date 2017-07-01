@@ -44,3 +44,13 @@ def max_index(lst):
             max_x = x
         x += 1
     return max_x
+
+def select_feature(panda_d_frame,label_map, feature_name="original"):
+    feature_list = panda_d_frame.get(feature_name).tolist()
+    # windows sucks
+    label_list = panda_d_frame.get("Unnamed: 0").tolist()
+    # look up label
+    label_list = list(map(lambda x: label_map["%.5d" % x], label_list))
+    res = list(zip(label_list,feature_list))
+    res = list(filter(lambda x: True if type(x[1]) == str else False,res))
+    return res
