@@ -10,3 +10,4 @@ __pycache__
 env
 GoogleNews-vectors-negative300.bin
 embding_matrix.pkl
+*.ipynb

@@ -20,6 +20,7 @@ from src.Classifiers.ClassifierFrameWork import ClassifierFrameWork
 from src.Classifiers.LDA import LDA
 from src.Classifiers.DNNClassifier import DNNC
 from src.Classifiers.BNNClassifier import BNN
+from src.Classifiers.SVM import SVM
 
 def print_usage():
     print("python src [-c <[classifiers] -t1 <training files> -t2 <test files> ] [ -e  [options]]  ")
@@ -33,6 +34,7 @@ def print_usage():
     print("\t-lda use Linear Discriminant Analysis")
     print("\t-dnn use Deep Neural Network")
     print("\t-bnn use Ben Neural Network")
+    print('\t-svm use SVM')
 
 
 
@@ -77,6 +79,10 @@ def parse_argv():
 
             elif arg == "-bnn" and arg_ptr.get_type() == ArgumentType.CLASSIFY:
                 arg_ptr.append_sub_args(Argument(arg,ArgumentType.BNN_CLASSIFY))
+                
+                
+            elif arg == '-svm' and arg_ptr.get_type() == ArgumentType.CLASSIFY:
+                arg_ptr.append_sub_args(Argument(arg, ArgumentType.SVM_CLASSIFY))
 
             else:
                 # not a normal tag. check for command input.
@@ -173,6 +179,9 @@ def main():
                     cfw.add_classifier(DNNC())
                 elif sarg.get_type() == ArgumentType.BNN_CLASSIFY:
                     cfw.add_classifier(BNN())
+                    
+                elif sarg.get_type() == ArgumentType.SVM_CLASSIFY:
+                    cfw.add_classifier(SVM())
 
             # do classification task
             cfw.preprocess_data()
@@ -184,3 +193,4 @@ def main():
 
 
 main()
+

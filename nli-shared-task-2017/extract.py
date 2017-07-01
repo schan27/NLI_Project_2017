@@ -1,5 +1,6 @@
 from difflib import SequenceMatcher
 from string import punctuation
+from nltk import WordNetLemmatizer
 
 
 # define types of tags
@@ -154,3 +155,10 @@ def extract_punc_trigrams(row):
     return ' '.join(['%s_%s_%s' % (w1, w2, w3) for w1, w2, w3 in trigrams if w2 in punctuation])
     
     
+lemmatizer = WordNetLemmatizer()
+    
+    
+def extract_lemmas(row):
+    corrected = row[CORR]
+    lemmas = [lemmatizer.lemmatize(w) for w in corrected.split()]
+    return ' '.join(lemmas)

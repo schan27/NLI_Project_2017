@@ -18,6 +18,7 @@ class ArgumentType:
     LDA_CLASSIFY        = 23
     DNN_CLASSIFY        = 24
     BNN_CLASSIFY        = 25
+    SVM_CLASSIFY        = 26
 
 
 
