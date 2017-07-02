@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 import os
 
-FEATURE_COUNT = 10000
+FEATURE_COUNT = 100000
 FEATURE = "original"
 N_CLASSES = 11
 LOAD_MODEL = False
@@ -19,59 +19,41 @@ LOAD_MODEL = False
 class BNN:
     def __init__(self, pout=False):
         super(BNN,self).__init__()
-        one = _BNN(ngram_range=(1, 1), lower=True, binary=False)
-        #one.add_pipe(Pipeline([('cv',CountVectorizer(ngram_range=(1,1),binary=False)),
-        #                       ('idf', TfidfTransformer(norm='l2')),
-        #                       ('kb',SelectKBest(k=FEATURE_COUNT))]))
-        one.add_pipe(Pipeline([('cv',CountVectorizer(ngram_range=(2,2),binary=True)),
-                               #('idf',TfidfTransformer(norm='l2')),
-                               ('kb',SelectKBest(k=FEATURE_COUNT))]))
-        one.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(3, 3), binary=False)),
-                               #('idf', TfidfTransformer(norm='l2')),
+        one = _BNN("one")
+        one.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(2, 2), binary=True)),
+                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
+        one.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(1, 3), binary=True)),
+                               ('kb', SelectKBest(k=50000))]))
+
+        two = _BNN("two")
+        two.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(2, 2), binary=True)),
                                ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
-        two = _BNN()
-        two.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(1, 3), binary=True,lowercase=False)),
-                               #('idf', TfidfTransformer(norm='l2')),
-                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
-
-        three = _BNN()
+        three = _BNN("three")
         three.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(5, 5), binary=True, analyzer="char")),
-                               #('idf', TfidfTransformer(norm='l2')),
-                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
+                                 ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
-        four = _BNN()
+        four = _BNN("four")
         four.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(5, 5), binary=True, analyzer="char_wb")),
-                                 # ('idf', TfidfTransformer(norm='l2')),
-                                 ('kb', SelectKBest(k='all'))]))
+                                ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
-        self.network_list = [one,two,three,four]#,two,three,four]#_BNN(binary=True,analyzer="char_wb",feature_count='all'), _BNN(binary=True),_BNN(binary=False),_BNN(binary=True, analyzer='char'),
-                             #_BNN(binary=False, analyzer='char')]
+        self.network_list = [one,two,three,four]
         self.prob_output = pout
 
     def preprocess(self,data):
         return data
 
-    def load_models(self):
-        dirname = os.path.dirname(__file__)
-        dirname += "models/"
-        i = 0
-        for i in range(0,len(self.network_list)):
-            model_from_json(dirname + "1.json")
-
-            i += 1
-
-
 
     def train(self,training_data):
         if len(training_data) == 1:
             feature_data = []
-            feature_data.append(select_feature(training_data[0][1],training_data[0][0],"original"))
+            feature_data.append(select_feature(training_data[0][1], training_data[0][0], "original"))
             feature_data.append(select_feature(training_data[0][1], training_data[0][0], "lemmas"))
 
             i = 0
             for network in self.network_list:
                 print("Training Network: ", i + 1, " of: ", len(self.network_list))
+                #network.load_from_disk("/home/bbenetti/")
                 network.train(None, feature_data)
                 i += 1
         else:
@@ -80,6 +62,10 @@ class BNN:
                 print("Training Network: ", i+1, " of: ", len(self.network_list))
                 network.train(training_data)
                 i += 1
+
+        # save models to disk
+        #for network in self.network_list:
+        #    network.save_to_disk("/tmp/models/")
 
     def classify(self,testing_data):
         network_results = []
@@ -123,7 +109,7 @@ class BNN:
 
 
 class _BNN (ClassifierBase):
-    def __init__(self,ngram_range=(1,4),binary=True,analyzer='word',lower=True,feature_count=FEATURE_COUNT):
+    def __init__(self,name, ngram_range=(1,4),binary=True,analyzer='word',lower=True,feature_count=FEATURE_COUNT):
         super(_BNN, self).__init__()
         self.estimator = None
         self.kbest = SelectKBest(k=feature_count)
@@ -131,12 +117,27 @@ class _BNN (ClassifierBase):
         self.sel = SelectFromModel(LinearSVC(C=0.47))
         self.tfid = TfidfTransformer()
         self.pipe_list = []
+        self.name = name
 
     def preprocess(self, data):
         return data
 
     def add_pipe(self, pipe):
         self.pipe_list.append(pipe)
+
+    def save_to_disk(self,path):
+        model_json = self.estimator.to_json()
+        with open(os.path.join(path, self.name + ".json"), "w") as jfile:
+            jfile.write(model_json)
+        self.estimator.save_weights(os.path.join(path, self.name+".h5"))
+        print("Model ", self.name, "saved to disk @ ", path)
+
+    def load_from_disk(self, path):
+        with open(os.path.join(path, self.name + ".json"), "r") as jfile:
+            self.estimator = model_from_json(jfile.read())
+
+        self.estimator.load_weights(os.path.join(path, self.name+".h5"))
+        print("Model ", self.name, " loaded from disk")
 
     def train(self, training_data, feature_list=None):
         from keras.models import Sequential
@@ -158,13 +159,14 @@ class _BNN (ClassifierBase):
                 for data in feature:
                     data_list.append(data[1])
 
-                if i < len(self.pipe_list) and self.pipe_list[i] != None:
-                    feature_mtx.append(self.pipe_list[i].fit_transform(data_list,label_list).toarray())
+                if i < len(self.pipe_list) and self.pipe_list[i] is not None:
+                    feature_mtx.append(self.pipe_list[i].fit_transform(data_list, label_list).toarray())
                 i += 1
 
-            feature_counts = feature_mtx[0]
-            for i in range(1,len(feature_mtx)):
-                feature_counts = np.concatenate([feature_counts,feature_mtx[i]],axis=1)
+            if self.estimator is None:
+                feature_counts = feature_mtx[0]
+                for i in range(1,len(feature_mtx)):
+                    feature_counts = np.concatenate([feature_counts,feature_mtx[i]],axis=1)
 
         else:
             # format data for DNN
@@ -176,15 +178,18 @@ class _BNN (ClassifierBase):
             # extract features
             feature_counts = self.tfid.fit_transform(self.kbest.fit_transform(self.cv.fit_transform(data_list), label_list),label_list).toarray()
 
-        print("feature count: ", feature_counts.shape[1])
-        self.estimator = Sequential()
-        self.estimator.add(Dense(128,activation='tanh',input_shape=(feature_counts.shape[1],)))
-        self.estimator.add(Dropout(0.2))
-        self.estimator.add(Dense(N_CLASSES,activation="softmax"))
-        self.estimator.compile(loss="categorical_crossentropy",optimizer="Adam", metrics=['accuracy'])
+        if self.estimator is None:
+            print("feature count: ", feature_counts.shape[1])
+            self.estimator = Sequential()
+            self.estimator.add(Dense(128,activation='tanh',input_shape=(feature_counts.shape[1],)))
+            self.estimator.add(Dropout(0.2))
+            self.estimator.add(Dense(N_CLASSES,activation="softmax"))
+            self.estimator.compile(loss="categorical_crossentropy",optimizer="Adam", metrics=['accuracy'])
 
-        self.estimator.fit(feature_counts,to_categorical(label_list,num_classes=11),
-                           batch_size=128,epochs=100,callbacks=[EarlyStopping(monitor="loss",min_delta=0.1)])
+            self.estimator.fit(feature_counts,to_categorical(label_list,num_classes=11),
+                               batch_size=64,epochs=2,callbacks=[EarlyStopping(monitor="loss",min_delta=0.1)])
+        else:
+            self.estimator.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=['accuracy'])
 
     def classify(self, testing_data, feature_list=None):
         output = []
@@ -199,7 +204,7 @@ class _BNN (ClassifierBase):
                     for data in feature:
                         data_list.append(data[1])
 
-                    if i < len(self.pipe_list) and self.pipe_list != None:
+                    if i < len(self.pipe_list) and self.pipe_list[i] is not None:
                         feature_mtx.append(self.pipe_list[i].transform(data_list).toarray())
                     i += 1
 

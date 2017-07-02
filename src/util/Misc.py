@@ -52,5 +52,5 @@ def select_feature(panda_d_frame,label_map, feature_name="original"):
     # look up label
     label_list = list(map(lambda x: label_map["%.5d" % x], label_list))
     res = list(zip(label_list,feature_list))
-    res = list(filter(lambda x: True if type(x[1]) == str else False,res))
+    res = list(map(lambda x: (x[0],"blank") if type(x[1]) != str else x,res))
     return res
