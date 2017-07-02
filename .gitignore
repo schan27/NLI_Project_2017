@@ -11,3 +11,5 @@ env
 GoogleNews-vectors-negative300.bin
 embding_matrix.pkl
 *.ipynb
+src/Classifiers/checkpoints/*
+nli-shared-task-2017/*

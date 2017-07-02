@@ -20,7 +20,6 @@ class Ensemble(ClassifierBase):
     # where label = (speech_prompt, essay_prompt, L1) and data is document text.
     # return None.
     def train(self,training_data):
-        output = []
         self.bnn.train(training_data)
         self.svm.train(training_data)
 
@@ -34,7 +33,6 @@ class Ensemble(ClassifierBase):
         label_list = []
         for data in feature_data:
             label_list.append(data[0])
-
 
         output.extend(self.bnn.classify(testing_data))
         output.extend(self.svm.classify(testing_data))
