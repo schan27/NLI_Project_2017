@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 import os
 
-FEATURE_COUNT = 'all'
+FEATURE_COUNT = 10000
 FEATURE = "original"
 N_CLASSES = 11
 LOAD_MODEL = False
@@ -25,27 +25,27 @@ class BNN:
         #                       ('kb',SelectKBest(k=FEATURE_COUNT))]))
         one.add_pipe(Pipeline([('cv',CountVectorizer(ngram_range=(2,2),binary=True)),
                                #('idf',TfidfTransformer(norm='l2')),
-                               ('kb',SelectKBest(k=100000))]))
+                               ('kb',SelectKBest(k=FEATURE_COUNT))]))
         one.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(3, 3), binary=False)),
                                #('idf', TfidfTransformer(norm='l2')),
-                               ('kb', SelectKBest(k=100000))]))
+                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
         two = _BNN()
-        two.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(1, 4), binary=True,lowercase=False)),
+        two.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(1, 3), binary=True,lowercase=False)),
                                #('idf', TfidfTransformer(norm='l2')),
-                               ('kb', SelectKBest(k=100000))]))
+                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
         three = _BNN()
         three.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(5, 5), binary=True, analyzer="char")),
                                #('idf', TfidfTransformer(norm='l2')),
-                               ('kb', SelectKBest(k=100000))]))
+                               ('kb', SelectKBest(k=FEATURE_COUNT))]))
 
         four = _BNN()
         four.add_pipe(Pipeline([('cv', CountVectorizer(ngram_range=(5, 5), binary=True, analyzer="char_wb")),
                                  # ('idf', TfidfTransformer(norm='l2')),
                                  ('kb', SelectKBest(k='all'))]))
 
-        self.network_list = [one,two,three,four]#_BNN(binary=True,analyzer="char_wb",feature_count='all'), _BNN(binary=True),_BNN(binary=False),_BNN(binary=True, analyzer='char'),
+        self.network_list = [one,two,three,four]#,two,three,four]#_BNN(binary=True,analyzer="char_wb",feature_count='all'), _BNN(binary=True),_BNN(binary=False),_BNN(binary=True, analyzer='char'),
                              #_BNN(binary=False, analyzer='char')]
         self.prob_output = pout
 
@@ -158,7 +158,7 @@ class _BNN (ClassifierBase):
                 for data in feature:
                     data_list.append(data[1])
 
-                if i < len(self.pipe_list):
+                if i < len(self.pipe_list) and self.pipe_list[i] != None:
                     feature_mtx.append(self.pipe_list[i].fit_transform(data_list,label_list).toarray())
                 i += 1
 
@@ -199,7 +199,7 @@ class _BNN (ClassifierBase):
                     for data in feature:
                         data_list.append(data[1])
 
-                    if i < len(self.pipe_list):
+                    if i < len(self.pipe_list) and self.pipe_list != None:
                         feature_mtx.append(self.pipe_list[i].transform(data_list).toarray())
                     i += 1
 

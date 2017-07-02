@@ -21,6 +21,7 @@ from src.Classifiers.LDA import LDA
 from src.Classifiers.DNNClassifier import DNNC
 from src.Classifiers.BNNClassifier import BNN
 from src.Classifiers.SVM import SVM
+from src.Classifiers.Ensemble import Ensemble
 
 def print_usage():
     print("python src [-c <[classifiers] -t1 <training files> -t2 <test files> ] [ -e  [options]]  ")
@@ -35,6 +36,7 @@ def print_usage():
     print("\t-dnn use Deep Neural Network")
     print("\t-bnn use Ben Neural Network")
     print('\t-svm use SVM')
+    print("\t-en use Ensemble")
 
 
 
@@ -79,10 +81,12 @@ def parse_argv():
 
             elif arg == "-bnn" and arg_ptr.get_type() == ArgumentType.CLASSIFY:
                 arg_ptr.append_sub_args(Argument(arg,ArgumentType.BNN_CLASSIFY))
-                
-                
+
             elif arg == '-svm' and arg_ptr.get_type() == ArgumentType.CLASSIFY:
                 arg_ptr.append_sub_args(Argument(arg, ArgumentType.SVM_CLASSIFY))
+
+            elif arg == '-en' and arg_ptr.get_type() == ArgumentType.CLASSIFY:
+                arg_ptr.append_sub_args(Argument(arg, ArgumentType.EN_CLASSIFY))
 
             else:
                 # not a normal tag. check for command input.
@@ -179,9 +183,10 @@ def main():
                     cfw.add_classifier(DNNC())
                 elif sarg.get_type() == ArgumentType.BNN_CLASSIFY:
                     cfw.add_classifier(BNN())
-                    
                 elif sarg.get_type() == ArgumentType.SVM_CLASSIFY:
                     cfw.add_classifier(SVM())
+                elif sarg.get_type() == ArgumentType.EN_CLASSIFY:
+                    cfw.add_classifier(Ensemble())
 
             # do classification task
             cfw.preprocess_data()

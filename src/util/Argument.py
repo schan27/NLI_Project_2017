@@ -19,6 +19,7 @@ class ArgumentType:
     DNN_CLASSIFY        = 24
     BNN_CLASSIFY        = 25
     SVM_CLASSIFY        = 26
+    EN_CLASSIFY         = 27
 
 
 
