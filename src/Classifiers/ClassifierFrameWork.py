@@ -42,6 +42,11 @@ class ClassifierFrameWork:
                 else:
                     self.train_data.append((data_label,data_buffer))
             else:
+                if bTest:
+                    self.test_data.append((("Foo","Foo","Foo","Foo"), data_buffer))
+                else:
+                    self.train_data.append((("Foo", "Foo", "Foo", "Foo"), data_buffer))
+
                 print("ERROR: could not find label for: " + path)
 
     # load data labels from file

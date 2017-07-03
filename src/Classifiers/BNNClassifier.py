@@ -3,6 +3,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_selection import SelectKBest, SelectFromModel
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.model_selection import StratifiedKFold
 from src.util.Misc import max_index, select_feature
 from keras.models import model_from_json
 from sklearn.pipeline import Pipeline
@@ -51,11 +52,21 @@ class BNN:
             feature_data.append(select_feature(training_data[0][1], training_data[0][0], "lemmas"))
 
             i = 0
+            #networks = []
             for network in self.network_list:
                 print("Training Network: ", i + 1, " of: ", len(self.network_list))
-                #network.load_from_disk("/home/bbenetti/")
+                network.load_from_disk(os.path.join(os.path.dirname(__file__),"BNN1/"))
                 network.train(None, feature_data)
                 i += 1
+
+            #final = np.ndarray(shape=(networks[0].shape[0],4),dtype=object)
+            #for j in range(0,len(networks)):
+            #    for i in range(0,len(networks[j])):
+            #        final[:,j][i] = list(networks[j][i])
+
+            #np.save("foobar", final)
+
+
         else:
             i = 0
             for network in self.network_list:
@@ -185,9 +196,38 @@ class _BNN (ClassifierBase):
             self.estimator.add(Dropout(0.2))
             self.estimator.add(Dense(N_CLASSES,activation="softmax"))
             self.estimator.compile(loss="categorical_crossentropy",optimizer="Adam", metrics=['accuracy'])
+            self.estimator.fit(feature_counts, to_categorical(label_list, num_classes=11),
+                               batch_size=64, epochs=2, callbacks=[EarlyStopping(monitor="loss", min_delta=0.1)])
 
-            self.estimator.fit(feature_counts,to_categorical(label_list,num_classes=11),
-                               batch_size=64,epochs=2,callbacks=[EarlyStopping(monitor="loss",min_delta=0.1)])
+            #out_mtx_lst = np.ndarray(shape=(feature_counts.shape[0],11))
+            #skf = StratifiedKFold(n_splits=10)
+            #label_list = np.array(label_list)
+            #for train_index, test_index in skf.split(feature_counts,label_list):
+            #    estimator = Sequential()
+            #    estimator.add(Dense(128, activation='tanh', input_shape=(feature_counts.shape[1],)))
+            #    estimator.add(Dropout(0.2))
+            #    estimator.add(Dense(N_CLASSES, activation="softmax"))
+            #    estimator.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=['accuracy'])
+            #    estimator.fit(feature_counts[train_index], to_categorical(label_list[train_index], num_classes=11),
+            #                       batch_size=64, epochs=2, callbacks=[EarlyStopping(monitor="loss", min_delta=0.1)])
+            #    network_results = estimator.predict(feature_counts[test_index])
+            #    out_mtx_lst[test_index] = network_results
+            #    output = []
+            #    labels = label_list[test_index]
+            #    i = 0
+            #    for row in network_results:
+            #        output.append((labels[i], max_index(row)))
+            #        i += 1
+
+            #    correct = 0
+            #    total = 0
+            #    for o in output:
+            #        if o[0] == o[1]:
+            #            correct += 1
+            #        total += 1
+
+            #    print("Accuracy is: ", (float(correct)/float(total)))
+            #return out_mtx_lst
         else:
             self.estimator.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=['accuracy'])
 

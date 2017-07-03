@@ -14,7 +14,7 @@ class SVM():
     def __init__(self):
         self.clf_list = [
             _SVM('original', 'word', 2), 
-            _SVM('original', 'word', 3), 
+            _SVM('original', 'word', 3),
             _SVM('original', 'char', 4), 
             _SVM('original', 'char', 5),
             _SVM('phonemes', 'word', 4), 

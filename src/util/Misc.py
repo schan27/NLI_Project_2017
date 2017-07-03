@@ -49,6 +49,13 @@ def select_feature(panda_d_frame,label_map, feature_name="original"):
     feature_list = panda_d_frame.get(feature_name).tolist()
     # windows sucks
     label_list = panda_d_frame.get("Unnamed: 0").tolist()
+
+    def label_lookup(x):
+        try:
+            return label_map["%.5d" % x]
+        except KeyError:
+            return ("%.5d" % x,"%.5d" % x,"%.5d" % x,"%.5d" % x) # <-- fake label
+
     # look up label
     label_list = list(map(lambda x: label_map["%.5d" % x], label_list))
     res = list(zip(label_list,feature_list))
